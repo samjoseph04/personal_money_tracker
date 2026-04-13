@@ -11,7 +11,7 @@ Future<void> main() async {
 
   try {
     await HiveService.instance.init();
-    runApp(const MoneyTrackerApp());
+    runApp(const CoinFlowApp());
   } catch (error) {
     runApp(
       InitializationErrorApp(
@@ -22,15 +22,15 @@ Future<void> main() async {
   }
 }
 
-class MoneyTrackerApp extends StatelessWidget {
-  const MoneyTrackerApp({super.key});
+class CoinFlowApp extends StatelessWidget {
+  const CoinFlowApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ExpenseProvider()..loadExpenses(),
       child: MaterialApp(
-        title: 'Personal Money Tracker',
+        title: 'CoinFlow',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
         home: const HomeScreen(),
@@ -52,7 +52,7 @@ class InitializationErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Personal Money Tracker',
+      title: 'CoinFlow',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       home: Builder(

@@ -10,15 +10,16 @@ class AppTheme {
     const surface = Colors.white;
     const text = Color(0xFF16211D);
 
-    final scheme = ColorScheme.fromSeed(
-      seedColor: primary,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: primary,
-      secondary: secondary,
-      surface: surface,
-      error: const Color(0xFFB3261E),
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: primary,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: primary,
+          secondary: secondary,
+          surface: surface,
+          error: const Color(0xFFB3261E),
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -62,9 +63,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: primary,
@@ -82,18 +81,13 @@ class AppTheme {
           horizontal: 18,
           vertical: 18,
         ),
-        hintStyle: const TextStyle(
-          color: Color(0xFF95A19D),
-          fontSize: 18,
-        ),
+        hintStyle: const TextStyle(color: Color(0xFF95A19D), fontSize: 18),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: text,
         contentTextStyle: const TextStyle(color: Colors.white),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       dividerColor: const Color(0xFFEAE7DE),
     );

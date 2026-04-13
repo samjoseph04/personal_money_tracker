@@ -13,17 +13,26 @@ class ExpenseInsightSummary {
   });
 
   const ExpenseInsightSummary.empty()
-      : categoryTotals = const {},
-        topCategory = null,
-        topCategoryTotal = 0;
+    : categoryTotals = const {},
+      topCategory = null,
+      topCategoryTotal = 0;
 
-  final Map<ExpenseCategory, double> categoryTotals;
-  final ExpenseCategory? topCategory;
+  final Map<ExpenseCategoryData, double> categoryTotals;
+  final ExpenseCategoryData? topCategory;
   final double topCategoryTotal;
 
-  UnmodifiableListView<MapEntry<ExpenseCategory, double>> get sortedTotals {
+  UnmodifiableListView<MapEntry<ExpenseCategoryData, double>> get sortedTotals {
     final entries = categoryTotals.entries.toList()
-      ..sort((left, right) => right.value.compareTo(left.value));
+      ..sort((left, right) {
+        final totalComparison = right.value.compareTo(left.value);
+        if (totalComparison != 0) {
+          return totalComparison;
+        }
+
+        return left.key.name.toLowerCase().compareTo(
+          right.key.name.toLowerCase(),
+        );
+      });
     return UnmodifiableListView(entries);
   }
 }
@@ -31,9 +40,12 @@ class ExpenseInsightSummary {
 class ExpenseInsights {
   const ExpenseInsights._();
 
-  static ExpenseInsightSummary summarize(List<Expense> expenses) {
-    final totals = <ExpenseCategory, double>{
-      for (final category in ExpenseCategory.values) category: 0,
+  static ExpenseInsightSummary summarize(
+    List<Expense> expenses, {
+    Iterable<ExpenseCategoryData> categories = const [],
+  }) {
+    final totals = <ExpenseCategoryData, double>{
+      for (final category in categories) category: 0,
     };
 
     for (final expense in expenses) {
@@ -44,7 +56,7 @@ class ExpenseInsights {
       );
     }
 
-    ExpenseCategory? topCategory;
+    ExpenseCategoryData? topCategory;
     double topCategoryTotal = 0;
 
     for (final entry in totals.entries) {

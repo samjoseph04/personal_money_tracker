@@ -1,4 +1,4 @@
-# Personal Money Tracker
+# CoinFlow
 
 A minimal, offline-first Flutter expense tracker focused on fast entry and a clean home dashboard.
 

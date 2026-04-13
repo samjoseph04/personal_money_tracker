@@ -39,63 +39,72 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final categories = context.select(
+      (ExpenseProvider value) => value.categories,
+    );
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Padding(
         padding: EdgeInsets.fromLTRB(12, 0, 12, bottomInset + 12),
         child: Material(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(30),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Quick add',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Type an amount, then tap a category to save instantly.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 18),
-                TextField(
-                  controller: _amountController,
-                  focusNode: _amountFocusNode,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Quick add',
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
-                  textInputAction: TextInputAction.done,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
-                  ],
-                  style: Theme.of(context).textTheme.headlineSmall,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter amount',
-                    prefixText: '\$ ',
+                  const SizedBox(height: 6),
+                  Text(
+                    'Type an amount, then tap a category to save instantly.',
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: ExpenseCategory.values
-                      .map(
-                        (category) => _CategoryButton(
-                          category: category,
-                          isSaving: _isSaving,
-                          onTap: () => _saveExpense(context, category),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: _amountController,
+                    focusNode: _amountFocusNode,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                    ],
+                    style: Theme.of(context).textTheme.headlineSmall,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter amount',
+                      prefixText: '₹ ',
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  if (categories.isEmpty)
+                    Text(
+                      'Add a category first to start logging expenses.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    )
+                  else
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: categories
+                          .map(
+                            (category) => _CategoryButton(
+                              category: category,
+                              isSaving: _isSaving,
+                              onTap: () => _saveExpense(context, category),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
@@ -105,7 +114,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
   Future<void> _saveExpense(
     BuildContext context,
-    ExpenseCategory category,
+    ExpenseCategoryData category,
   ) async {
     if (_isSaving) {
       return;
@@ -116,9 +125,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     });
 
     final error = await context.read<ExpenseProvider>().addExpense(
-          amountText: _amountController.text,
-          category: category,
-        );
+      amountText: _amountController.text,
+      category: category,
+    );
 
     if (!mounted) {
       return;
@@ -145,7 +154,7 @@ class _CategoryButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final ExpenseCategory category;
+  final ExpenseCategoryData category;
   final bool isSaving;
   final VoidCallback onTap;
 
@@ -160,13 +169,8 @@ class _CategoryButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         backgroundColor: category.color.withOpacity(0.12),
         foregroundColor: category.color,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w600,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
       ),
     );
   }

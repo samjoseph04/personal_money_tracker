@@ -6,16 +6,20 @@ import 'package:personal_money_tracker/models/expense.dart';
 import 'package:personal_money_tracker/services/hive_service.dart';
 import 'package:personal_money_tracker/utils/amount_parser.dart';
 import 'package:personal_money_tracker/utils/app_date_utils.dart';
+import 'package:personal_money_tracker/utils/category_style.dart';
 import 'package:personal_money_tracker/utils/expense_insights.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   ExpenseProvider({HiveService? service})
-      : _service = service ?? HiveService.instance;
+    : _service = service ?? HiveService.instance;
 
   final HiveService _service;
   final List<Expense> _expenses = [];
+  final List<ExpenseCategoryData> _categories = [];
   late final UnmodifiableListView<Expense> _recentExpensesView =
       UnmodifiableListView(_expenses);
+  late final UnmodifiableListView<ExpenseCategoryData> _categoriesView =
+      UnmodifiableListView(_categories);
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -27,16 +31,27 @@ class ExpenseProvider extends ChangeNotifier {
   double get todayTotal => _todayTotal;
   ExpenseInsightSummary get insights => _insights;
   UnmodifiableListView<Expense> get recentExpenses => _recentExpensesView;
+  UnmodifiableListView<ExpenseCategoryData> get categories => _categoriesView;
 
   Future<void> loadExpenses() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final items = await _service.fetchExpenses();
+      final results = await Future.wait<dynamic>([
+        _service.fetchExpenses(),
+        _service.fetchCategories(),
+      ]);
+
+      final items = results[0] as List<Expense>;
+      final categories = results[1] as List<ExpenseCategoryData>;
+
       _expenses
         ..clear()
         ..addAll(items);
+      _categories
+        ..clear()
+        ..addAll(categories);
       _errorMessage = null;
       _recalculateDerivedState();
     } catch (_) {
@@ -49,7 +64,7 @@ class ExpenseProvider extends ChangeNotifier {
 
   Future<String?> addExpense({
     required String amountText,
-    required ExpenseCategory category,
+    required ExpenseCategoryData category,
   }) async {
     final amount = AmountParser.tryParsePositive(amountText);
     if (amount == null) {
@@ -69,6 +84,62 @@ class ExpenseProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> addCategory({required String nameText}) async {
+    final normalized = _normalizeCategoryName(nameText);
+    if (normalized.isEmpty) {
+      return 'Enter a category name.';
+    }
+
+    final alreadyExists = _categories.any(
+      (category) => _normalizeCategoryName(category.name) == normalized,
+    );
+    if (alreadyExists) {
+      return 'That category already exists.';
+    }
+
+    try {
+      final preset = presetForCategoryIndex(_categories.length);
+      final category = ExpenseCategoryData.create(
+        name: _toDisplayName(normalized),
+        iconCodePoint: preset.iconCodePoint,
+        colorValue: preset.colorValue,
+      );
+
+      await _service.addCategory(category);
+      _categories.add(category);
+      _errorMessage = null;
+      _recalculateDerivedState();
+      notifyListeners();
+      return null;
+    } catch (_) {
+      return 'Your category could not be saved. Please try again.';
+    }
+  }
+
+  Future<String?> deleteCategory(String categoryId) async {
+    if (_categories.length <= 1) {
+      return 'Keep at least one category so you can continue logging expenses.';
+    }
+
+    final index = _categories.indexWhere(
+      (category) => category.id == categoryId,
+    );
+    if (index == -1) {
+      return 'This category no longer exists.';
+    }
+
+    try {
+      await _service.deleteCategory(categoryId);
+      _categories.removeAt(index);
+      _errorMessage = null;
+      _recalculateDerivedState();
+      notifyListeners();
+      return null;
+    } catch (_) {
+      return 'This category could not be deleted. Please try again.';
+    }
+  }
+
   void _recalculateDerivedState() {
     final now = DateTime.now();
 
@@ -76,6 +147,21 @@ class ExpenseProvider extends ChangeNotifier {
         .where((expense) => AppDateUtils.isSameDay(expense.createdAt, now))
         .fold(0.0, (total, expense) => total + expense.amount);
 
-    _insights = ExpenseInsights.summarize(_expenses);
+    _insights = ExpenseInsights.summarize(_expenses, categories: _categories);
+  }
+
+  String _normalizeCategoryName(String value) {
+    return value.trim().replaceAll(RegExp(r'\s+'), ' ').toLowerCase();
+  }
+
+  String _toDisplayName(String value) {
+    return value
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map(
+          (part) =>
+              '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
+        )
+        .join(' ');
   }
 }

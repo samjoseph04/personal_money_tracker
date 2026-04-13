@@ -6,10 +6,7 @@ import 'package:personal_money_tracker/utils/category_style.dart';
 import 'package:personal_money_tracker/utils/currency_formatter.dart';
 
 class ExpenseListSection extends StatelessWidget {
-  const ExpenseListSection({
-    required this.expenses,
-    super.key,
-  });
+  const ExpenseListSection({required this.expenses, super.key});
 
   final List<Expense> expenses;
 
@@ -20,7 +17,8 @@ class ExpenseListSection extends StatelessWidget {
     }
 
     return ListView.separated(
-      padding: const EdgeInsets.only(bottom: 110),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: expenses.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
@@ -53,10 +51,7 @@ class _ExpenseTile extends StatelessWidget {
               color: expense.category.color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              expense.category.icon,
-              color: expense.category.color,
-            ),
+            child: Icon(expense.category.icon, color: expense.category.color),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -66,8 +61,8 @@ class _ExpenseTile extends StatelessWidget {
                 Text(
                   expense.category.label,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -80,9 +75,9 @@ class _ExpenseTile extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             CurrencyFormatter.format(expense.amount),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),

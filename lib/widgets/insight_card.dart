@@ -5,10 +5,7 @@ import 'package:personal_money_tracker/utils/currency_formatter.dart';
 import 'package:personal_money_tracker/utils/expense_insights.dart';
 
 class InsightCard extends StatelessWidget {
-  const InsightCard({
-    required this.summary,
-    super.key,
-  });
+  const InsightCard({required this.summary, super.key});
 
   final ExpenseInsightSummary summary;
 
@@ -29,35 +26,31 @@ class InsightCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Insights',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Insights', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
-          Text(
-            message,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+          Text(message, style: Theme.of(context).textTheme.bodyLarge),
           if (topCategory != null) ...[
             const SizedBox(height: 6),
             Text(
               CurrencyFormatter.format(summary.topCategoryTotal),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: topCategory.color,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: topCategory.color),
             ),
           ],
-          const SizedBox(height: 16),
-          ...summary.sortedTotals.map(
-            (entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _InsightRow(
-                label: entry.key.label,
-                amount: entry.value,
-                color: entry.key.color,
+          if (topCategory != null) ...[
+            const SizedBox(height: 16),
+            ...summary.sortedTotals.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _InsightRow(
+                  label: entry.key.label,
+                  amount: entry.value,
+                  color: entry.key.color,
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -91,17 +84,17 @@ class _InsightRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: const Color(0xFF273330),
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(color: const Color(0xFF273330)),
           ),
         ),
         Text(
           CurrencyFormatter.format(amount),
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF273330),
-              ),
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF273330),
+          ),
         ),
       ],
     );

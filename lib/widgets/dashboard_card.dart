@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:personal_money_tracker/utils/currency_formatter.dart';
 
 class DashboardCard extends StatelessWidget {
-  const DashboardCard({
-    required this.todayTotal,
-    super.key,
-  });
+  const DashboardCard({required this.todayTotal, super.key});
 
   final double todayTotal;
 
@@ -18,10 +15,7 @@ class DashboardCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF1F6F5F),
-            Color(0xFF2D8A76),
-          ],
+          colors: [Color(0xFF1F6F5F), Color(0xFF2D8A76)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -50,11 +44,7 @@ class DashboardCard extends StatelessWidget {
           const SizedBox(height: 10),
           const Text(
             'Fast logging keeps your daily total honest and up to date.',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.35,
-            ),
+            style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.35),
           ),
         ],
       ),
