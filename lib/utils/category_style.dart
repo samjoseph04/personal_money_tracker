@@ -17,7 +17,7 @@ class CategoryPreset {
   final int colorValue;
 }
 
-const List<CategoryPreset> categoryPresets = [
+List<CategoryPreset> categoryPresets = [
   CategoryPreset(
     id: 'default_food',
     name: 'Food',
